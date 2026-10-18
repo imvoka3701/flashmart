@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlashMart - Khủng Hoảng Truy Vấn JOIN & Giải Pháp Data Engineering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0d14;
+      --bg-surface: #111726;
+      --bg-surface-elevated: #182238;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(99, 102, 241, 0.3);
+      
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --primary-glow: rgba(99, 102, 241, 0.25);
+      
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 15%, rgba(244, 63, 94, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 90% 85%, rgba(99, 102, 241, 0.12) 0%, transparent 40%);
+    }
+
+    header {
+      background: rgba(17, 23, 38, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 1.1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #f43f5e, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(244, 63, 94, 0.3);
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff, #fecdd3);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+
+    .badge-primary {
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .badge-rose {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fda4af;
+      border-color: rgba(244, 63, 94, 0.3);
+    }
+
+    .badge-emerald {
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 1.1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      padding: 1rem 2rem 0;
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 0.75rem 1.25rem;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      color: var(--primary-light);
+      border-bottom-color: var(--primary-light);
+    }
+
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .code-box {
+      background: #07090e;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+
+    .code-box .kw { color: #f43f5e; font-weight: 600; }
+    .code-box .fn { color: #38bdf8; }
+    .code-box .str { color: #34d399; }
+    .code-box .num { color: #fbbf24; }
+    .code-box .cm { color: #64748b; font-style: italic; }
+
+    .table-container {
+      overflow-x: auto;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: #090d16;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+
+    thead th {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.85rem 1rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    tbody td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    tbody tr.highlight-success {
+      background: rgba(16, 185, 129, 0.12) !important;
+    }
+
+    tbody tr.highlight-danger {
+      background: rgba(244, 63, 94, 0.12) !important;
+    }
+
+    /* VENN DIAGRAM INTERACTIVE VISUALIZER */
+    .venn-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem;
+      padding: 2.5rem 1rem;
+      background: var(--bg-surface-elevated);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .venn-svg-box {
+      width: 320px;
+      height: 220px;
+    }
+
+    .venn-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      min-width: 280px;
+    }
+
+    .venn-btn {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s;
+    }
+
+    .venn-btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+    }
+
+    .venn-btn.active {
+      border-color: var(--primary-light);
+      background: rgba(99, 102, 241, 0.15);
+      color: #c7d2fe;
+      box-shadow: 0 0 14px var(--primary-glow);
+    }
+
+    /* ACCORDION */
+    .accordion-item {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface-elevated);
+      margin-bottom: 0.85rem;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      padding: 1.1rem 1.25rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+
+    .accordion-header:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .accordion-body {
+      padding: 1.25rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      display: none;
+      background: #090d16;
+    }
+
+    .accordion-item.open .accordion-body {
+      display: block;
+    }
+
+    .accordion-item.open .accordion-header {
+      color: var(--primary-light);
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 0.85rem 1.4rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+      </div>
+      <div>
+        <h1 class="brand-title">FlashMart &bull; JOIN Optimization & Crisis Control</h1>
+        <p class="brand-subtitle">Chiến dịch Siêu Sale Cuối Năm &bull; Giải pháp Data Engineering &amp; Set Theory</p>
+      </div>
+    </div>
+
+    <div class="header-badges">
+      <span class="badge badge-rose">Khủng hoảng JOIN</span>
+      <span class="badge badge-emerald">Đã khắc phục 100%</span>
+      <button class="btn btn-outline" onclick="copyFullSQL()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        Sao chép SQL
+      </button>
+      <a href="https://github.com/imvoka3701/flashmart" target="_blank" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub Repo
+      </a>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-crisis')">
+      ⚡ Khủng Hoảng &amp; Đối Chiếu Kết Quả
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-venn')">
+      📐 Sơ Đồ Tập Hợp Venn &amp; Driving Table
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-count')">
+      🔬 Mổ Xẻ COUNT(*) vs COUNT(cột)
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-cdo')">
+      🛡️ Vấn Đáp Bảo Vệ Cùng CDO
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-sql')">
+      💻 File flashmart_reports.sql
+    </button>
+  </div>
+
+  <main>
+    <!-- TAB 1: CRISIS & RESULTS -->
+    <div id="tab-crisis" class="tab-content active">
+      
+      <!-- BÀI TOÁN 1: MARKETING -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span style="color: #6366f1;">🎯 Sự Cố 1: Báo Cáo Marketing (Bỏ Rơi Khách Chưa Mua)</span>
+          </div>
+          <span class="badge badge-emerald">Mục tiêu: Đủ 3 khách hàng</span>
+        </div>
+
+        <div class="grid-2">
+          <!-- Cột Cũ (Sai) -->
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+              <h4 style="color: #fda4af; font-size: 0.9rem;">❌ Mã Legacy (Lập Trình Viên Tập Sự)</h4>
+              <span class="badge badge-rose">INNER JOIN</span>
+            </div>
+            <div class="code-box">
+<span class="kw">SELECT</span> c.customer_id, c.name, <span class="fn">COUNT</span>(o.order_id)
+<span class="kw">FROM</span> Customers c
+<span class="kw">JOIN</span> Orders o <span class="kw">ON</span> c.customer_id = o.customer_id
+<span class="kw">GROUP BY</span> c.customer_id, c.name;
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr><th>ID</th><th>Tên</th><th>Số Đơn</th><th>Đánh giá</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>1</td><td>Alice</td><td>2</td><td><span class="badge badge-primary">OK</span></td></tr>
+                  <tr><td>2</td><td>Bob</td><td>1</td><td><span class="badge badge-primary">OK</span></td></tr>
+                  <tr class="highlight-danger">
+                    <td colspan="4" style="color: #f43f5e; font-weight: 600; text-align: center;">
+                      ⚠️ THẢM HỌA: Charlie (Chưa mua) bị bốc hơi hoàn toàn!
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Cột Mới (Đúng) -->
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+              <h4 style="color: #6ee7b7; font-size: 0.9rem;">✅ Mã Tối Ưu (Data Engineer)</h4>
+              <span class="badge badge-emerald">LEFT JOIN + COUNT(o.order_id)</span>
+            </div>
+            <div class="code-box">
+<span class="kw">SELECT</span> c.customer_id, c.name, <span class="fn">COUNT</span>(o.order_id) <span class="kw">AS</span> total_orders
+<span class="kw">FROM</span> Customers c
+<span class="kw">LEFT JOIN</span> Orders o <span class="kw">ON</span> c.customer_id = o.customer_id
+<span class="kw">GROUP BY</span> c.customer_id, c.name;
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr><th>ID</th><th>Tên</th><th>Số Đơn</th><th>Hành Động Marketing</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>1</td><td>Alice</td><td>2</td><td>Khách hàng thân thiết</td></tr>
+                  <tr><td>2</td><td>Bob</td><td>1</td><td>Khách hàng thân thiết</td></tr>
+                  <tr class="highlight-success">
+                    <td><strong>3</strong></td>
+                    <td style="font-weight: 700; color: #6ee7b7;">Charlie</td>
+                    <td><strong style="color: #f59e0b;">0</strong></td>
+                    <td><span class="badge badge-amber">🎁 Tặng Voucher 50%</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BÀI TOÁN 2: KHO VẬN -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span style="color: #f59e0b;">📦 Sự Cố 2: Báo Cáo Kho Vận (Không Tìm Thấy Hàng Tồn Ế)</span>
+          </div>
+          <span class="badge badge-emerald">Mục tiêu: Đủ 1 sản phẩm tồn kho (Keyboard 103)</span>
+        </div>
+
+        <div class="grid-2">
+          <!-- Cột Cũ (Sai) -->
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+              <h4 style="color: #fda4af; font-size: 0.9rem;">❌ Mã Legacy (Lập Trình Viên Tập Sự)</h4>
+              <span class="badge badge-rose">JOIN + WHERE IS NULL</span>
+            </div>
+            <div class="code-box">
+<span class="kw">SELECT</span> p.product_id, p.product_name
+<span class="kw">FROM</span> Products p
+<span class="kw">JOIN</span> Orders o <span class="kw">ON</span> p.product_id = o.product_id
+<span class="kw">WHERE</span> o.order_id <span class="kw">IS NULL</span>;
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr><th>Product ID</th><th>Tên Sản Phẩm</th><th>Trạng Thái</th></tr>
+                </thead>
+                <tbody>
+                  <tr class="highlight-danger">
+                    <td colspan="3" style="color: #f43f5e; font-weight: 600; text-align: center;">
+                      ⚠️ BÁO CÁO RỖNG (0 DÒNG): Điều kiện mâu thuẫn do INNER JOIN không có NULL!
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Cột Mới (Đúng) -->
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+              <h4 style="color: #6ee7b7; font-size: 0.9rem;">✅ Mã Tối Ưu (Kỹ Thuật Anti-Join)</h4>
+              <span class="badge badge-emerald">LEFT JOIN ... WHERE o.order_id IS NULL</span>
+            </div>
+            <div class="code-box">
+<span class="kw">SELECT</span> p.product_id, p.product_name
+<span class="kw">FROM</span> Products p
+<span class="kw">LEFT JOIN</span> Orders o <span class="kw">ON</span> p.product_id = o.product_id
+<span class="kw">WHERE</span> o.order_id <span class="kw">IS NULL</span>;
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr><th>Product ID</th><th>Tên Sản Phẩm</th><th>Đề Xuất Kho Vận</th></tr>
+                </thead>
+                <tbody>
+                  <tr class="highlight-success">
+                    <td><strong>103</strong></td>
+                    <td style="font-weight: 700; color: #6ee7b7;">Keyboard</td>
+                    <td><span class="badge badge-rose">🔥 Đề xuất thanh lý thu hồi vốn</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: VENN DIAGRAM -->
+    <div id="tab-venn" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📐 Khám Phá Lý Thuyết Tập Hợp (Venn Diagram Interactive)</span>
+          </div>
+          <span class="badge badge-primary">Set Theory in Relational Databases</span>
+        </div>
+
+        <div class="venn-wrapper">
+          <!-- Interactive SVG Venn Diagram -->
+          <svg class="venn-svg-box" viewBox="0 0 320 220" id="venn-svg">
+            <defs>
+              <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+            <!-- Left Circle (Table A) -->
+            <circle id="venn-circle-left" cx="120" cy="110" r="75" fill="rgba(99, 102, 241, 0.4)" stroke="#6366f1" stroke-width="2"></circle>
+            <!-- Right Circle (Table B) -->
+            <circle id="venn-circle-right" cx="200" cy="110" r="75" fill="rgba(6, 182, 212, 0.4)" stroke="#06b6d4" stroke-width="2"></circle>
+            <!-- Intersection Region Overlay (dynamic) -->
+            <path id="venn-intersection" d="M 160 55 A 75 75 0 0 1 160 165 A 75 75 0 0 1 160 55" fill="rgba(16, 185, 129, 0.6)" stroke="#10b981" stroke-width="2" style="display: none;"></path>
+
+            <!-- Labels -->
+            <text x="80" y="115" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle" id="lbl-left">Bảng A</text>
+            <text x="240" y="115" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle" id="lbl-right">Bảng B</text>
+            <text x="160" y="115" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle" id="lbl-inter" style="display: none;">A ∩ B</text>
+          </svg>
+
+          <!-- Interactive Control Buttons -->
+          <div class="venn-controls">
+            <button class="venn-btn active" onclick="setVennMode('inner')">
+              <strong>1. INNER JOIN (Phần Giao A ∩ B)</strong>
+              <div style="font-size: 0.75rem; color: var(--text-dim);">Chỉ lấy các dòng xuất hiện ở cả hai bảng</div>
+            </button>
+            <button class="venn-btn" onclick="setVennMode('left')">
+              <strong>2. LEFT JOIN (Bảo tồn toàn bộ Bảng A)</strong>
+              <div style="font-size: 0.75rem; color: var(--text-dim);">Lấy toàn bộ A, ghép B nếu có, không có thì NULL</div>
+            </button>
+            <button class="venn-btn" onclick="setVennMode('antijoin')">
+              <strong>3. ANTI-JOIN (Phần Bù A \ B)</strong>
+              <div style="font-size: 0.75rem; color: var(--text-dim);">Chỉ lấy các dòng thuộc A nhưng KHÔNG hề có trong B</div>
+            </button>
+            <button class="venn-btn" onclick="setVennMode('full')">
+              <strong>4. FULL OUTER JOIN (Hợp Nhất A ∪ B)</strong>
+              <div style="font-size: 0.75rem; color: var(--text-dim);">Lấy tất cả các dòng từ cả A và B</div>
+            </button>
+          </div>
+        </div>
+
+        <div id="venn-explanation-box" style="padding: 1.25rem; border-radius: var(--radius-sm); background: var(--bg-surface-elevated); border: 1px solid var(--border-color); font-size: 0.9rem; line-height: 1.6;">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: COUNT ANALYSIS -->
+    <div id="tab-count" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🔬 So Sánh Chuyên Sâu: COUNT(*) vs COUNT(o.order_id)</span>
+          </div>
+          <span class="badge badge-amber">Quy tắc chuẩn hóa SQL</span>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.7; margin-bottom: 1.5rem;">
+          Khi thực hiện <code>LEFT JOIN</code>, đối với khách hàng chưa từng mua hàng (như <strong>Charlie</strong>), bảng kết hợp tạm thời của MySQL sẽ sinh ra một dòng dữ liệu dạng:
+        </p>
+
+        <div class="code-box" style="font-size: 0.95rem; text-align: center; color: #a5b4fc;">
+          Row: ( customer_id: 3, name: 'Charlie', order_id: <span style="color: #f43f5e; font-weight: 700;">NULL</span>, product_id: <span style="color: #f43f5e; font-weight: 700;">NULL</span> )
+        </div>
+
+        <div class="grid-2">
+          <div style="background: rgba(244, 63, 94, 0.04); border: 1px solid rgba(244, 63, 94, 0.25); border-radius: var(--radius-sm); padding: 1.25rem;">
+            <h4 style="color: #fda4af; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+              <span>❌</span> Tại sao COUNT(*) gây sai lệch?
+            </h4>
+            <p style="font-size: 0.88rem; color: #fecdd3; line-height: 1.7;">
+              Hàm <code>COUNT(*)</code> đếm <strong>tổng số hàng vật lý</strong> được tạo ra trong nhóm sau khi GROUP BY. Vì dòng của Charlie vẫn tồn tại (dù các trường bên Orders là NULL), <code>COUNT(*)</code> sẽ đếm hàng này và cho ra kết quả <strong>1 đơn hàng</strong>. Điều này làm hỏng toàn bộ logic phát voucher cho người chưa mua!
+            </p>
+          </div>
+
+          <div style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-sm); padding: 1.25rem;">
+            <h4 style="color: #6ee7b7; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+              <span>✅</span> Tại sao COUNT(o.order_id) chính xác tuyệt đối?
+            </h4>
+            <p style="font-size: 0.88rem; color: #a7f3d0; line-height: 1.7;">
+              Theo đặc tả chuẩn ANSI SQL, hàm <code>COUNT(tên_cột)</code> <strong>tự động bỏ qua các giá trị mang giá trị NULL</strong>. Vì <code>o.order_id</code> của Charlie là <code>NULL</code>, hàm sẽ không tính nó và trả về chính xác số lượng đơn hàng là <strong>0</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: CDO DEFENSE -->
+    <div id="tab-cdo" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🛡️ Bộ Câu Hỏi Vấn Đáp Với Chief Data Officer (CDO)</span>
+          </div>
+          <span class="badge badge-primary">Tiêu chí đánh giá 40%</span>
+        </div>
+
+        <!-- Question 1 -->
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>Câu 1: Phân biệt INNER JOIN và LEFT JOIN. Nếu đổi thành RIGHT JOIN và giữ nguyên thứ tự bảng thì sao?</span>
+            <span>▾</span>
+          </div>
+          <div class="accordion-body">
+            <p><strong>1. Sự khác biệt theo lý thuyết tập hợp:</strong></p>
+            <ul style="padding-left: 1.25rem; margin: 0.5rem 0;">
+              <li><strong>INNER JOIN:</strong> Là phép giao tập hợp ($A \cap B$). Chỉ giữ lại các bản ghi có dữ liệu khớp ở cả hai bảng. Loại bỏ thẳng tay các bản ghi mồ côi.</li>
+              <li><strong>LEFT JOIN:</strong> Giữ nguyên 100% bản ghi của bảng bên trái (Driving Table). Nếu bảng bên phải không có dữ liệu tương ứng, các trường của bảng phải sẽ được điền <code>NULL</code>.</li>
+            </ul>
+            <p><strong>2. Hậu quả khi viết <code>Customers RIGHT JOIN Orders</code>:</strong></p>
+            <p>Lúc này bảng <code>Orders</code> trở thành Driving Table. Phép nối sẽ chỉ giữ lại những khách hàng nào có mã <code>customer_id</code> xuất hiện trong <code>Orders</code>. Kết quả là khách hàng <strong>Charlie</strong> tiếp tục bị biến mất hệt như khi dùng INNER JOIN, chiến dịch Marketing tiếp tục thất bại!</p>
+          </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>Câu 2: Tại sao điều kiện WHERE o.order_id IS NULL bắt buộc phải đi kèm LEFT JOIN?</span>
+            <span>▾</span>
+          </div>
+          <div class="accordion-body">
+            <p>Bản chất của kỹ thuật Anti-Join là tìm các bản ghi thuộc bảng A nhưng <strong>không hề xuất hiện</strong> trong bảng B ($A \setminus B$).</p>
+            <p>Chỉ có <code>LEFT JOIN</code> mới sản sinh ra giá trị <code>NULL</code> cho các cột của bảng B đối với những dòng không tìm thấy liên kết.</p>
+            <p>Nếu dùng <code>INNER JOIN</code>, mọi dòng trong kết quả đều bắt buộc phải có giá trị hợp lệ (khác NULL). Do đó, điều kiện <code>WHERE o.order_id IS NULL</code> trở thành một mệnh đề mâu thuẫn tuyệt đối (Contradiction) và luôn trả về <strong>tập rỗng (0 dòng)</strong>!</p>
+          </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>Câu 3: Cross Join (Tích Descartes) là gì và khi nào một câu lệnh vô tình biến thành Cross Join gây treo máy chủ?</span>
+            <span>▾</span>
+          </div>
+          <div class="accordion-body">
+            <p><strong>1. Định nghĩa:</strong> Cross Join kết hợp từng dòng của bảng A với mọi dòng của bảng B, sinh ra tập kết quả có kích thước $M \times N$ dòng.</p>
+            <p><strong>2. Các trường hợp vô tình biến thành Cross Join:</strong></p>
+            <ul style="padding-left: 1.25rem; margin: 0.5rem 0;">
+              <li>Viết <code>SELECT * FROM Customers c JOIN Orders o;</code> mà quên mệnh đề <code>ON</code>. Trong chuẩn SQL, JOIN không có ON sẽ tự động suy biến thành CROSS JOIN.</li>
+              <li>Dùng cú pháp cũ <code>FROM Customers c, Orders o</code> mà quên điều kiện <code>WHERE</code> nối khóa.</li>
+              <li>Viết điều kiện nối sai logic: <code>ON 1=1</code> hoặc <code>ON c.customer_id = c.customer_id</code> (tự so sánh với chính nó).</li>
+            </ul>
+            <p><strong>3. Mức độ nguy hại:</strong> Nếu bảng khách hàng có 1 triệu dòng và đơn hàng có 10 triệu dòng, tích Descartes sẽ sinh ra 10 nghìn tỷ dòng ($10^{13}$), làm tràn RAM, đầy đĩa cứng tạm thời và làm treo toàn bộ máy chủ MySQL Production!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: SQL EXPLORER -->
+    <div id="tab-sql" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>💻 Mã Nguồn SQL Hoàn Chỉnh (flashmart_reports.sql)</span>
+          </div>
+          <button class="btn btn-primary" onclick="copyFullSQL()">Sao chép SQL</button>
+        </div>
+
+        <pre class="code-box" id="full-sql-code" style="max-height: 600px; overflow-y: auto;">
+-- -----------------------------------------------------
+-- HỆ THỐNG FLASHMART: GIẢI PHÁP TỐI ƯU HÓA TRUY VẤN JOIN
+-- -----------------------------------------------------
+DROP DATABASE IF EXISTS flashmart_db;
+CREATE DATABASE flashmart_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE flashmart_db;
+
+-- 1. Bảng Dữ Liệu
+CREATE TABLE Customers (customer_id INT PRIMARY KEY, name VARCHAR(50) NOT NULL);
+CREATE TABLE Products (product_id INT PRIMARY KEY, product_name VARCHAR(50) NOT NULL);
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY, 
+    customer_id INT NOT NULL, 
+    product_id INT NOT NULL,
+    CONSTRAINT FK_Orders_Customers FOREIGN KEY (customer_id) REFERENCES Customers(customer_id),
+    CONSTRAINT FK_Orders_Products FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+
+-- 2. Dữ liệu mẫu
+INSERT INTO Customers VALUES (1, 'Alice'), (2, 'Bob'), (3, 'Charlie');
+INSERT INTO Products VALUES (101, 'Laptop'), (102, 'Mouse'), (103, 'Keyboard');
+INSERT INTO Orders VALUES (1001, 1, 101), (1002, 1, 102), (1003, 2, 101);
+
+-- 3. Báo cáo Marketing: Tối ưu với LEFT JOIN + COUNT(o.order_id)
+SELECT 
+    c.customer_id, 
+    c.name, 
+    COUNT(o.order_id) AS total_orders,
+    CASE 
+        WHEN COUNT(o.order_id) = 0 THEN 'Tặng Voucher 50% (Khách hàng tiềm năng)'
+        ELSE 'Khách hàng thân thiết'
+    END AS marketing_action
+FROM Customers c
+LEFT JOIN Orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.name
+ORDER BY c.customer_id ASC;
+
+-- 4. Báo cáo Kho vận: Kỹ thuật Anti-Join (LEFT JOIN ... WHERE o.order_id IS NULL)
+SELECT 
+    p.product_id, 
+    p.product_name,
+    'Chưa từng phát sinh giao dịch - Đề xuất thanh lý' AS inventory_status
+FROM Products p
+LEFT JOIN Orders o ON p.product_id = o.product_id
+WHERE o.order_id IS NULL;
+        </pre>
+      </div>
+    </div>
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast" id="toast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <span id="toast-msg">Đã sao chép mã nguồn SQL!</span>
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      event.currentTarget.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function toggleAccordion(header) {
+      const item = header.parentElement;
+      item.classList.toggle('open');
+    }
+
+    function setVennMode(mode) {
+      document.querySelectorAll('.venn-btn').forEach(b => b.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      const circleLeft = document.getElementById('venn-circle-left');
+      const circleRight = document.getElementById('venn-circle-right');
+      const inter = document.getElementById('venn-intersection');
+      const lblInter = document.getElementById('lbl-inter');
+      const expBox = document.getElementById('venn-explanation-box');
+
+      if (mode === 'inner') {
+        circleLeft.setAttribute('fill', 'rgba(255, 255, 255, 0.05)');
+        circleRight.setAttribute('fill', 'rgba(255, 255, 255, 0.05)');
+        inter.style.display = 'block';
+        lblInter.style.display = 'block';
+        expBox.innerHTML = `
+          <strong style="color: #10b981;">INNER JOIN (Giao tập hợp A ∩ B):</strong><br>
+          Chỉ giữ lại những bản ghi mà giá trị khóa xuất hiện đồng thời ở cả hai bảng. Khách hàng chưa mua (Charlie) hoặc sản phẩm chưa bán (Keyboard) sẽ bị loại bỏ hoàn toàn.
+        `;
+      } else if (mode === 'left') {
+        circleLeft.setAttribute('fill', 'rgba(99, 102, 241, 0.6)');
+        circleRight.setAttribute('fill', 'rgba(255, 255, 255, 0.05)');
+        inter.style.display = 'block';
+        lblInter.style.display = 'block';
+        expBox.innerHTML = `
+          <strong style="color: #818cf8;">LEFT JOIN (Bảo tồn toàn bộ Bảng A):</strong><br>
+          Bảng bên trái (Customers) đóng vai trò là <strong>Driving Table</strong>. Toàn bộ 3 khách hàng (Alice, Bob, Charlie) đều được giữ lại. Các trường của Orders nếu không có sẽ tự mang giá trị NULL.
+        `;
+      } else if (mode === 'antijoin') {
+        circleLeft.setAttribute('fill', 'rgba(244, 63, 94, 0.6)');
+        circleRight.setAttribute('fill', 'rgba(255, 255, 255, 0.03)');
+        inter.style.display = 'none';
+        lblInter.style.display = 'none';
+        expBox.innerHTML = `
+          <strong style="color: #f43f5e;">ANTI-JOIN (Phần bù A \\ B với WHERE B.id IS NULL):</strong><br>
+          Chỉ lấy những bản ghi thuộc bảng A nhưng KHÔNG HỀ có giao dịch nào ở bảng B. Đây chính là giải pháp tìm ra sản phẩm tồn kho <strong>Keyboard (103)</strong> cho Giám đốc Kho vận.
+        `;
+      } else if (mode === 'full') {
+        circleLeft.setAttribute('fill', 'rgba(99, 102, 241, 0.5)');
+        circleRight.setAttribute('fill', 'rgba(6, 182, 212, 0.5)');
+        inter.style.display = 'block';
+        lblInter.style.display = 'block';
+        expBox.innerHTML = `
+          <strong style="color: #38bdf8;">FULL OUTER JOIN (Hợp nhất A ∪ B):</strong><br>
+          Giữ lại tất cả bản ghi từ cả 2 bảng. Trong MySQL, kỹ thuật này được mô phỏng bằng <code>LEFT JOIN UNION RIGHT JOIN</code>.
+        `;
+      }
+    }
+
+    // Default venn load
+    setVennMode('inner');
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function copyFullSQL() {
+      const sql = document.getElementById('full-sql-code').textContent;
+      navigator.clipboard.writeText(sql).then(() => {
+        showToast('Đã sao chép toàn bộ SQL vào clipboard!');
+      });
+    }
+  </script>
+</body>
+</html>
